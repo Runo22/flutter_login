@@ -36,6 +36,7 @@ class AuthCard extends StatefulWidget {
       this.padding = const EdgeInsets.all(0),
       this.loadingController,
       this.userValidator,
+      this.userIdValidator,
       this.passwordValidator,
       this.onSubmit,
       this.onSubmitCompleted,
@@ -51,6 +52,7 @@ class AuthCard extends StatefulWidget {
   final EdgeInsets padding;
   final AnimationController? loadingController;
   final FormFieldValidator<String>? userValidator;
+  final FormFieldValidator<String>? userIdValidator;
   final FormFieldValidator<String>? passwordValidator;
   final Function? onSubmit;
   final Function? onSubmitCompleted;
@@ -327,7 +329,7 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
                   ),
                 )
               : _RecoverCard(
-                  userValidator: widget.userValidator,
+                  userIdValidator: widget.userIdValidator,
                   userType: widget.userType,
                   loginTheme: widget.loginTheme,
                   navigateBack: widget.navigateBackAfterRecovery,

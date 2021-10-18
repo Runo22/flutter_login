@@ -327,10 +327,17 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
                 widget.onSwitchRecoveryPassword();
               }
             : null,
-        child: Text(
-          messages.forgotPasswordButton,
-          style: theme.textTheme.bodyText2,
-          textAlign: TextAlign.left,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Icon(Icons.laptop_chromebook_rounded, 
+              ),
+            Text(
+              messages.forgotPasswordButton,
+              style: theme.textTheme.bodyText2,
+              textAlign: TextAlign.left,
+            ),
+          ],
         ),
       ),
     );

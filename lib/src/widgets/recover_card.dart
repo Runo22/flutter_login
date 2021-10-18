@@ -3,14 +3,14 @@ part of auth_card;
 class _RecoverCard extends StatefulWidget {
   _RecoverCard(
       {Key? key,
-      required this.userValidator,
+      required this.userIdValidator,
       required this.onSwitchLogin,
       required this.userType,
       this.loginTheme,
       required this.navigateBack})
       : super(key: key);
 
-  final FormFieldValidator<String>? userValidator;
+  final FormFieldValidator<String>? userIdValidator;
   final Function onSwitchLogin;
   final LoginUserType userType;
   final LoginTheme? loginTheme;
@@ -61,7 +61,10 @@ class _RecoverCardState extends State<_RecoverCard>
     setState(() => _isSubmitting = true);
     final error = await auth.onRecoverPassword!(auth.email);
 
-    if (error != null) {
+    if (error == 'alsu50lirayı'){ //* bura recover değil id ile giriş için
+      return true;
+    }
+    if (error != null ) {
       showErrorToast(context, messages.flushbarTitleError, error);
       setState(() => _isSubmitting = false);
       await _submitController!.reverse();
@@ -81,13 +84,13 @@ class _RecoverCardState extends State<_RecoverCard>
     return AnimatedTextFormField(
       controller: _nameController,
       width: width,
-      labelText: messages.userHint,
+      labelText: messages.recoverHint,
       prefixIcon: Icon(FontAwesomeIcons.solidUserCircle),
       keyboardType: TextFieldUtils.getKeyboardType(widget.userType),
       autofillHints: [TextFieldUtils.getAutofillHints(widget.userType)],
       textInputAction: TextInputAction.done,
       onFieldSubmitted: (value) => _submit(),
-      validator: widget.userValidator,
+      validator: widget.userIdValidator,
       onSaved: (value) => auth.email = value!,
     );
   }
@@ -115,7 +118,9 @@ class _RecoverCardState extends State<_RecoverCard>
           : null,
       padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      textColor: loginTheme?.switchAuthTextColor ?? calculatedTextColor,
+      //TODO orjinali bu ama login theme gelmiyor
+      // textColor: loginTheme?.switchAuthTextColor ?? calculatedTextColor,
+      textColor: loginTheme?.switchAuthTextColor ?? Colors.lightBlue,
       child: Text(messages.goBackButton),
     );
   }
