@@ -1,7 +1,7 @@
 part of auth_card;
 
-class _RecoverCard extends StatefulWidget {
-  _RecoverCard(
+class _UserIdLoginCard extends StatefulWidget {
+  _UserIdLoginCard(
       {Key? key,
       required this.userIdValidator,
       required this.onSwitchLogin,
@@ -17,12 +17,12 @@ class _RecoverCard extends StatefulWidget {
   final bool navigateBack;
 
   @override
-  _RecoverCardState createState() => _RecoverCardState();
+  _UserIdLoginCardState createState() => _UserIdLoginCardState();
 }
 
-class _RecoverCardState extends State<_RecoverCard>
+class _UserIdLoginCardState extends State<_UserIdLoginCard>
     with SingleTickerProviderStateMixin {
-  final GlobalKey<FormState> _formRecoverKey = GlobalKey();
+  final GlobalKey<FormState> _formUserIdLoginKey = GlobalKey();
 
   TextEditingController? _nameController;
 
@@ -35,7 +35,7 @@ class _RecoverCardState extends State<_RecoverCard>
     super.initState();
 
     final auth = Provider.of<Auth>(context, listen: false);
-    _nameController = TextEditingController(text: auth.email);
+    _nameController = TextEditingController(text: auth.userID);
 
     _submitController = AnimationController(
       vsync: this,
@@ -49,53 +49,55 @@ class _RecoverCardState extends State<_RecoverCard>
     super.dispose();
   }
 
-  Future<bool> _submit() async {
-    if (!_formRecoverKey.currentState!.validate()) {
+  Future<bool> _submit() async { 
+    if (!_formUserIdLoginKey.currentState!.validate()) {
       return false;
     }
     final auth = Provider.of<Auth>(context, listen: false);
     final messages = Provider.of<LoginMessages>(context, listen: false);
 
-    _formRecoverKey.currentState!.save();
+    _formUserIdLoginKey.currentState!.save();
     await _submitController!.forward();
     setState(() => _isSubmitting = true);
-    final error = await auth.onRecoverPassword!(auth.email);
-
+    final error = await auth.onUserIdLogin!(auth.userID);
+    if (error == 'alsu50lirayı'){ //* bura recover değil id ile giriş için
+      return true;
+    }
     if (error != null ) {
       showErrorToast(context, messages.flushbarTitleError, error);
       setState(() => _isSubmitting = false);
       await _submitController!.reverse();
       return false;
     } else {
-      // showSuccessToast(context, messages.flushbarTitleSuccess,
-      //     messages.recoverPasswordSuccess);
-      setState(() => _isSubmitting = false);
-      await _submitController!.reverse();
-      // if (widget.navigateBack) widget.onSwitchLogin();
-      return true;
+      showSuccessToast(context, messages.flushbarTitleSuccess,
+          messages.userIdLoginButtonSuccess);
+    setState(() => _isSubmitting = false);
+    await _submitController!.reverse();
+    if (widget.navigateBack) widget.onSwitchLogin();
+    return true;
     }
   }
 
-  Widget _buildRecoverNameField(
+  Widget _buildUserIdLoginNameField(
       double width, LoginMessages messages, Auth auth) {
     return AnimatedTextFormField(
       controller: _nameController,
       width: width,
-      labelText: messages.recoverHint,
+      labelText: messages.userIdLoginHint,
       prefixIcon: Icon(FontAwesomeIcons.solidUserCircle),
       keyboardType: TextFieldUtils.getKeyboardType(widget.userType),
       autofillHints: [TextFieldUtils.getAutofillHints(widget.userType)],
       textInputAction: TextInputAction.done,
       onFieldSubmitted: (value) => _submit(),
       validator: widget.userIdValidator,
-      onSaved: (value) => auth.email = value!,
+      onSaved: (value) => auth.userID = value!,
     );
   }
 
-  Widget _buildRecoverButton(ThemeData theme, LoginMessages messages) {
+  Widget _buildUserIdLoginButton(ThemeData theme, LoginMessages messages) {
     return AnimatedButton(
       controller: _submitController,
-      text: messages.recoverPasswordButton,
+      text: messages.userIdLoginButton,
       onPressed: !_isSubmitting ? _submit : null,
     );
   }
@@ -109,7 +111,7 @@ class _RecoverCardState extends State<_RecoverCard>
     return MaterialButton(
       onPressed: !_isSubmitting
           ? () {
-              _formRecoverKey.currentState!.save();
+              _formUserIdLoginKey.currentState!.save();
               widget.onSwitchLogin();
             }
           : null,
@@ -144,26 +146,26 @@ class _RecoverCardState extends State<_RecoverCard>
           width: cardWidth,
           alignment: Alignment.center,
           child: Form(
-            key: _formRecoverKey,
+            key: _formUserIdLoginKey,
             child: Column(
               children: [
                 Text(
-                  messages.recoverPasswordIntro,
-                  key: kRecoverPasswordIntroKey,
+                  messages.userIdLoginButtonIntro,
+                  key: kUserIdLoginIntroKey,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyText2,
                 ),
                 SizedBox(height: 20),
-                _buildRecoverNameField(textFieldWidth, messages, auth),
+                _buildUserIdLoginNameField(textFieldWidth, messages, auth),
                 SizedBox(height: 20),
                 Text(
-                  messages.recoverPasswordDescription,
-                  key: kRecoverPasswordDescriptionKey,
+                  messages.userIdLoginButtonDescription,
+                  key: kUserIdLoginDescriptionKey,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyText2,
                 ),
                 SizedBox(height: 26),
-                _buildRecoverButton(theme, messages),
+                _buildUserIdLoginButton(theme, messages),
                 _buildBackButton(theme, messages, widget.loginTheme),
               ],
             ),

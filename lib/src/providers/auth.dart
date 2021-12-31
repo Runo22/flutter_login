@@ -14,20 +14,26 @@ typedef ProviderAuthCallback = Future<String?>? Function();
 /// The result is an error message, callback successes if message is null
 typedef RecoverCallback = Future<String?>? Function(String);
 
+typedef UserIdLoginCallback = Future<String?>? Function(String);
+
 class Auth with ChangeNotifier {
   Auth({
     this.loginProviders = const [],
     this.onLogin,
     this.onSignup,
     this.onRecoverPassword,
+    this.onUserIdLogin,
     String email = '',
+    String userID = '',
     String password = '',
     String confirmPassword = '',
   })  : _email = email,
+        _userID = userID,
         _password = password,
         _confirmPassword = confirmPassword;
 
   final AuthCallback? onLogin;
+  final RecoverCallback? onUserIdLogin;
   final AuthCallback? onSignup;
   final RecoverCallback? onRecoverPassword;
   final List<LoginProvider> loginProviders;
@@ -43,6 +49,7 @@ class Auth with ChangeNotifier {
   bool get isLogin => _mode == AuthMode.Login;
   bool get isSignup => _mode == AuthMode.Signup;
   bool isRecover = false;
+  bool isUserIdLogin = false;
 
   AuthMode opposite() {
     return _mode == AuthMode.Login ? AuthMode.Signup : AuthMode.Login;
@@ -61,6 +68,13 @@ class Auth with ChangeNotifier {
   String get email => _email;
   set email(String email) {
     _email = email;
+    notifyListeners();
+  }
+
+  String _userID = '';
+  String get userID => _userID;
+  set userID(String userID) {
+    _userID = userID;
     notifyListeners();
   }
 

@@ -28,6 +28,7 @@ import 'fade_in.dart';
 
 part 'login_card.dart';
 part 'recover_card.dart';
+part 'userIdLogin_card.dart';
 
 class AuthCard extends StatefulWidget {
   AuthCard(
@@ -73,7 +74,7 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
   final GlobalKey _cardKey = GlobalKey();
 
   var _isLoadingFirstTime = true;
-  var _pageIndex = 0;
+  var _pageIndex = 1;
   static const cardSizeScaleEnd = .2;
 
   TransformerPageController? _pageController;
@@ -91,7 +92,7 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    _pageController = TransformerPageController();
+    _pageController = TransformerPageController(initialPage: 1);
 
     widget.loadingController!.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
@@ -161,17 +162,36 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
 
     auth.isRecover = recovery;
     if (recovery) {
-      _pageController!.nextPage(
-        duration: Duration(milliseconds: 500),
-        curve: Curves.ease,
-      );
-      _pageIndex = 1;
-    } else {
       _pageController!.previousPage(
         duration: Duration(milliseconds: 500),
         curve: Curves.ease,
       );
       _pageIndex = 0;
+    } else {
+      _pageController!.nextPage(
+        duration: Duration(milliseconds: 500),
+        curve: Curves.ease,
+      );
+      _pageIndex = 1;
+    }
+  }
+
+  void _switchUserIdLogin(bool uIdLogin) {
+    final auth = Provider.of<Auth>(context, listen: false);
+
+    auth.isUserIdLogin = uIdLogin;
+    if (uIdLogin) {
+      _pageController!.nextPage(
+        duration: Duration(milliseconds: 500),
+        curve: Curves.ease,
+      );
+      _pageIndex = 2;
+    } else {
+      _pageController!.previousPage(
+        duration: Duration(milliseconds: 500),
+        curve: Curves.ease,
+      );
+      _pageIndex = 1;
     }
   }
 
@@ -230,10 +250,10 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
     }
   }
 
-  void runChangePageAnimation() {
-    final auth = Provider.of<Auth>(context, listen: false);
-    _switchRecovery(!auth.isRecover);
-  }
+  // void runChangePageAnimation() {
+  //   final auth = Provider.of<Auth>(context, listen: false);
+  //   _switchRecovery(!auth.isRecover);
+  // }
 
   Widget _buildLoadingAnimator({Widget? child, required ThemeData theme}) {
     Widget card;
@@ -296,45 +316,62 @@ class AuthCardState extends State<AuthCard> with TickerProviderStateMixin {
       child: TransformerPageView(
         physics: NeverScrollableScrollPhysics(),
         pageController: _pageController,
-        itemCount: 2,
+        itemCount: 3,
 
         /// Need to keep track of page index because soft keyboard will
         /// make page view rebuilt
         index: _pageIndex,
+
         transformer: widget.disableCustomPageTransformer
             ? null
             : CustomPageTransformer(),
         itemBuilder: (BuildContext context, int index) {
-          final child = (index == 0)
-              ? _buildLoadingAnimator(
-                  theme: theme,
-                  child: _LoginCard(
-                    key: _cardKey,
-                    userType: widget.userType,
-                    loadingController: _isLoadingFirstTime
-                        ? _formLoadingController
-                        : (_formLoadingController..value = 1.0),
-                    userValidator: widget.userValidator,
-                    passwordValidator: widget.passwordValidator,
-                    onSwitchRecoveryPassword: () => _switchRecovery(true),
-                    onSubmitCompleted: () {
-                      _forwardChangeRouteAnimation().then((_) {
-                        widget.onSubmitCompleted!();
-                      });
-                    },
-                    hideSignUpButton: widget.hideSignUpButton,
-                    hideForgotPasswordButton: widget.hideForgotPasswordButton,
-                    loginAfterSignUp: widget.loginAfterSignUp,
-                    hideProvidersTitle: widget.hideProvidersTitle,
-                  ),
-                )
-              : _RecoverCard(
-                  userIdValidator: widget.userIdValidator,
+          var child;
+          switch (index) {
+            case 0:
+              child = _RecoverCard(
+                userIdValidator: widget.userIdValidator,
+                userType: widget.userType,
+                loginTheme: widget.loginTheme,
+                navigateBack: widget.navigateBackAfterRecovery,
+                onSwitchLogin: () => _switchRecovery(false),
+              );
+              break;
+            case 1:
+              child = _buildLoadingAnimator(
+                theme: theme,
+                child: _LoginCard(
+                  key: _cardKey,
                   userType: widget.userType,
-                  loginTheme: widget.loginTheme,
-                  navigateBack: widget.navigateBackAfterRecovery,
-                  onSwitchLogin: () => _switchRecovery(false),
-                );
+                  loadingController: _isLoadingFirstTime
+                      ? _formLoadingController
+                      : (_formLoadingController..value = 1.0),
+                  userValidator: widget.userValidator,
+                  passwordValidator: widget.passwordValidator,
+                  onSwitchRecoveryPassword: () => _switchRecovery(true),
+                  onSwitchUserIdLogin: () => _switchUserIdLogin(true),
+                  onSubmitCompleted: () {
+                    _forwardChangeRouteAnimation().then((_) {
+                      widget.onSubmitCompleted!();
+                    });
+                  },
+                  hideSignUpButton: widget.hideSignUpButton,
+                  hideForgotPasswordButton: widget.hideForgotPasswordButton,
+                  loginAfterSignUp: widget.loginAfterSignUp,
+                  hideProvidersTitle: widget.hideProvidersTitle,
+                ),
+              );
+              break;
+            case 2:
+              child = _UserIdLoginCard(
+                userIdValidator: widget.userIdValidator,
+                userType: widget.userType,
+                loginTheme: widget.loginTheme,
+                navigateBack: widget.navigateBackAfterRecovery,
+                onSwitchLogin: () => _switchUserIdLogin(false),
+              );;
+              break;
+          }
 
           return Align(
             alignment: Alignment.topCenter,

@@ -7,6 +7,7 @@ class _LoginCard extends StatefulWidget {
       required this.userValidator,
       required this.passwordValidator,
       required this.onSwitchRecoveryPassword,
+      required this.onSwitchUserIdLogin,
       required this.userType,
       this.onSwitchAuth,
       this.onSubmitCompleted,
@@ -20,6 +21,7 @@ class _LoginCard extends StatefulWidget {
   final FormFieldValidator<String>? userValidator;
   final FormFieldValidator<String>? passwordValidator;
   final Function onSwitchRecoveryPassword;
+  final Function onSwitchUserIdLogin;
   final Function? onSwitchAuth;
   final Function? onSubmitCompleted;
   final bool hideForgotPasswordButton;
@@ -313,7 +315,7 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildForgotPassword(ThemeData theme, LoginMessages messages) {
+  Widget _buildUserIdLogin(ThemeData theme, LoginMessages messages) {
     return FadeIn(
       controller: _loadingController,
       fadeDirection: FadeDirection.bottomToTop,
@@ -322,22 +324,50 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
       child: TextButton(
         onPressed: buttonEnabled
             ? () {
-                // save state to populate email field on recovery card
+                // save state to populate email field on useridlogin card
+                //?bunu kapatınca giriş yapılmıyor kalsın 
                 _formKey.currentState!.save();
-                widget.onSwitchRecoveryPassword();
+                widget.onSwitchUserIdLogin();
               }
             : null,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Icon(Icons.laptop_chromebook_rounded, 
-              ),
+            Icon(
+              Icons.laptop_chromebook_rounded,
+            ),
             Text(
               messages.forgotPasswordButton,
               style: theme.textTheme.bodyText2,
               textAlign: TextAlign.left,
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildForgotPassword(ThemeData theme, LoginMessages messages) {
+    return FadeIn(
+      controller: _loadingController,
+      fadeDirection: FadeDirection.bottomToTop,
+      offset: .5,
+      curve: _textButtonLoadingAnimationInterval,
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: TextButton(
+          onPressed: buttonEnabled
+              ? () {
+                  // save state to populate email field on recovery card
+                  _formKey.currentState!.save();
+                  widget.onSwitchRecoveryPassword();
+                }
+              : null,
+          child: Text(
+            'Forgot password?',
+            style: theme.textTheme.bodyText2,
+            textAlign: TextAlign.left,
+          ),
         ),
       ),
     );
@@ -479,8 +509,9 @@ class _LoginCardState extends State<_LoginCard> with TickerProviderStateMixin {
             width: cardWidth,
             child: Column(
               children: <Widget>[
+                _buildForgotPassword(theme, messages),
                 !widget.hideForgotPasswordButton
-                    ? _buildForgotPassword(theme, messages)
+                    ? _buildUserIdLogin(theme, messages)
                     : SizedBox.fromSize(
                         size: Size.fromHeight(16),
                       ),

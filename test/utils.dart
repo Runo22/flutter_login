@@ -50,6 +50,7 @@ Widget defaultFlutterLogin() {
       onSignup: (data) => null,
       onLogin: (data) => null,
       onRecoverPassword: (data) => null,
+      onUserIdLogin: (data) => null,
     ),
   );
 }
